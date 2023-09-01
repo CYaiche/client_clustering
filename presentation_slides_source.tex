@@ -1,0 +1,387 @@
+\documentclass{beamer}
+\usefonttheme{default}
+\usepackage{wrapfig}
+\usepackage{caption}
+\usepackage{subcaption}
+% \usepackage[pagestyles,extramarks]{titlesec}
+
+% \newpagestyle{mystyle}{
+%     \setfoot{}{\thepage}{}
+% }
+% \pagestyle{mystyle}
+\usetheme{Madrid}
+%Information to be included in the title page:
+\title{Project 4 }
+\subtitle{Segmenter les clients du marketplace brésilien OLIST}
+\author{Clara Yaiche}
+\institute{OpenClassroom}
+\date{2023}
+
+\begin{document}
+%------------------------------------------------
+\frame{\titlepage}
+
+
+%------------------------------------------------
+\begin{frame}
+	\frametitle{Sommaire} % Slide title, remove this command for no title
+	
+	\tableofcontents % Output the table of contents (all sections on one slide)
+	%\tableofcontents[pausesections] % Output the table of contents (break sections up across separate slides)
+\end{frame}
+%------------------------------------------------
+\begin{frame}
+
+\section{Les bases de données OLIST : analyse exploratoire et nettoyage}
+\subsection{Présentation de la problématique}
+
+\frametitle{Les bases de données OLIST : analyse exploratoire et nettoyage}
+\framesubtitle{Présentation de la problématique}
+\textbf{But} : Segmenter les clients du site internet de vente en ligne  OLIST. Proposer aux équipes marketing la segmentation et une temporalité de mise à jour. Il s'agit de comprendre les différents types de clients grâce à leur comportement d'achat et à leurs données personnelles. \newline
+
+\textbf{Les données} : sont séparées en plusieurs bases à fusionner. Beaucoup d'informations personnelles sur les clients sont manquantes pour des raisons de confidentialité.  \\
+
+% \begin{wrapfigure}{l}{0.5\textwidth}
+\begin{center}
+    \includegraphics[width=0.3\textwidth]{data.png}
+\end{center}
+
+% \end{wrapfigure}
+
+
+\end{frame}
+
+
+%------------------------------------------------
+
+
+
+\begin{frame}
+
+\frametitle{Les bases de données OLIST : analyse exploratoire et nettoyage}
+    \subsection{Analyse exploratoire}
+	\framesubtitle{Analyse exploratoire}
+\begin{footnotesize}
+Les données sont structurées de la manière suivante : \\ 
+
+    Chaque ligne correspond à un article acheté comportant des informations sur le client, son domicile, l'article, le payement ainsi que le délai et le statut de la livraison. \\
+% Il existe donc plusieurs lignes correspondant à la même commande. Par exemple si le même article a été acheté plusieurs fois. 
+
+    L'idée de mon analyse exploratoire est de répondre à certaines questions à partir des données disponibles : \\
+    - Qu'est-ce que les clients achètent le plus ? À quelle époque ? Quels sont les délais de livraison ? \\
+    - D'où sont les clients sont-ils originaires, comment payent-ils leurs achats ? \\
+\end{footnotesize}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\linewidth]{most_bought_product.png}
+    \caption{Catégories des produits les plus vendus par le site internet OLIST}
+\end{figure} 
+
+
+
+\end{frame}
+
+
+%------------------------------------------------
+\begin{frame}
+
+\frametitle{Les bases de données OLIST : analyse exploratoire et nettoyage}
+	\framesubtitle{Analyse exploratoire : évolution des ventes}
+ \begin{footnotesize}
+Nombre de produits totaux vendus en 2017 et 2018 par heure en mois et année. Baisse des ventes de dix pour cent entre 2017 et 2018. 
+\end{footnotesize}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\linewidth]{order_per_day.png} 
+    \includegraphics[width=0.4\linewidth]{order_per_month.png}
+    \includegraphics[width=0.5\linewidth,height=2.7cm]{order_per_year.png}
+    \includegraphics[width=0.4\linewidth]{OLIST_profit.png}
+    
+\end{figure}
+
+\end{frame}
+%------------------------------------------------
+
+%------------------------------------------------
+\begin{frame}
+
+\frametitle{Les bases de données OLIST : analyse exploratoire et nettoyage}
+	\framesubtitle{Analyse exploratoire : localisation et payement}
+ \begin{footnotesize}
+La plupart des clients vivent au Brésil et payent par carte de crédit. \\
+Le délai de livraison peut varier entre 1 et 88 jours, la médiane est de 10 jours. 
+\end{footnotesize}
+\begin{figure}
+    \includegraphics[width=0.45\linewidth]{p4costumerlocation.png} 
+    \includegraphics[width=0.45\linewidth]{payment_types.png} 
+\end{figure}
+
+\end{frame}
+%------------------------------------------------
+
+\begin{frame}
+    \frametitle{Les bases de données OLIST : analyse exploratoire et nettoyage}
+    \subsection{Gestion des valeurs manquantes et atypiques}
+    \framesubtitle{Gestion des valeurs manquantes et atypiques}
+\begin{footnotesize}
+\textbf{Valeurs manquantes} : \\
+
+- nettoyage par seuil : les colonnes plus de 50 \%  les individus avec  plus de 70 \% de valeurs manquantes.\\ \\  
+
+- imputation par la moyenne \\
+
+- Suppression des individus : pour les variables comportant très peu de valeurs manquantes, on supprime les individus correspondants.\\ 
+
+ \\
+\newline
+
+\textbf{Filtrage} \\ 
+- Par année : suppression des données de 2016 (seul  0.3\% de la base)  \\
+- Par nombre de commandes : on ne garde que les clients qui ont effectué plus de deux
+deux commandes (qui peuvent contenir plusieurs produits), donc 3\% des individus présents dans la base\\
+\end{footnotesize}
+\end{frame}
+
+%------------------------------------------------
+
+%------------------------------------------------
+
+\begin{frame}
+\section{Segmentation des clients du site de e-commerce}
+\frametitle{Segmentation des clients du site de e-commerce}
+    \subsection{RFM (Récence, Fréquence, valeur Monétaire) }
+    \framesubtitle{RFM (Récence, Fréquence, valeur Monétaire)}
+    
+    \textbf{Récence : }  à partir de \textit{order\_purchase\_timestamp}, transformer au format pandas \textbf{datetime}. Ici, on souhaite avoir un délai, on prend comme valeur référence la première date de commande : \\
+    
+    \begin{center}
+        Récence = order\_purchase\_timestamp(Last client order) - min(order\_purchase\_timestamp)
+    \end{center}
+
+    \textbf{Fréquence : }  nombre d'achat(s)\\
+    \textbf{Montant : } : Somme total des achats effectués \\
+
+
+     
+\end{frame}
+
+%------------------------------------------------
+%------------------------------------------------
+
+\begin{frame}
+\frametitle{Segmentation des clients du site de e-commerce}
+    \framesubtitle{RFM (Récence, Fréquence, valeur Monétaire)}
+    \textbf{Gestion des outliers : } \\
+    % Certains clients ont des comportement très éloignés des autres clients.  Comme on souhaite segmenter les clients en des groupes homogenes, il est important de supprimer ces clients que l'on considere comme des \textbf{outliers}. \\
+    \begin{center}
+        \begin{footnotesize}
+            
+        
+   
+    - \textbf{l'ecart interquartile} \textcolor{red}{mais} 15 \% des individus sont supprimés \\ 
+    $IRQ = Q_3-Q_1$ \\
+    - \textbf{l'écart type} ici 3 \% des individus sont supprimés comme les variables ne suivent pas exactement un normal qui devrait donner : \\
+   $ \mathbb{P}(\mu-3\sigma \le x \le \mu+3\sigma)       &\approx 0,9973$
+        \end{footnotesize}
+     \end{center}
+
+     \begin{figure}
+         \centering
+         \includegraphics[width=0.7\textwidth]{outliers_by_std.png}
+     \end{figure}
+     
+\end{frame}
+
+%------------------------------------------------
+%------------------------------------------------
+
+\begin{frame}
+
+
+\frametitle{Segmentation des clients du site de e-commerce}
+    \subsection{Feature engineering : transformation et autres variables  }
+    \framesubtitle{Feature engineering : transformation et autres variables  }
+
+Prise en compte d'autres critères  : \\
+
+    - \textbf{Payement échelonné moyen} (\textit{payment\_installments})\\
+    - \textbf{Satisfaction} : note moyenne donnée par le client (\textit{review\_score})\\
+    - \textbf{localisation} : variable synthétique correspondant à la distance par rapport à la capitale brésilienne ( nouvelle variable synthetique : \textit{costumer\_dist\_from\_capital}) \\
+\textbf{Outliers : } suppression suivant l'écart interquartile. \\
+
+
+
+\end{frame}
+
+%------------------------------------------------
+%------------------------------------------------
+
+\begin{frame}
+
+
+\frametitle{Segmentation des clients du site de e-commerce}
+    \framesubtitle{Feature engineering : transformation et autres variables  }
+
+
+
+\textbf{Transformation des différentes variables } :\\
+- logarithmique : pour les données à très forte asymétrie à droite (pour la fréquence et la distance à la capitale).\\ 
+- Transformation boxcox (pour la récence, le montant et le payement échelonné ) 
+\begin{center}
+\begin{math}
+
+B(x,\lambda) = \begin{cases} \frac{x^{\lambda} - 1}{\lambda} & \text{si } \lambda \neq 0 \\ \log(x) & \text{si } \lambda = 0 \end{cases}
+
+\end{math}
+\end{center}
+\\ 
+\textbf{Mise à l'échelle : } certain algorithme de clustering et surtout le K-means travaillant sur des distances, il est important de mettre à la même échelle les données. Pour cela, j'ai utilisé la class \textit{sklearn.preprocessing.MinMaxScaler}. 
+
+
+
+
+\end{frame}
+
+%------------------------------------------------
+%------------------------------------------------
+
+\begin{frame}
+\subsection{K-means}
+\frametitle{Segmentation des clients du site de e-commerce}
+    \framesubtitle{Feature engineering : transformation et autres variables  }
+TEST différentes combinaisons : \\
+- Uniquement RFM \\
+- RFM et les nouvelles variables \\
+- RFM, les nouvelles variables et la PCA\\ 
+
+
+\begin{figure}
+    \centering
+    % \includegraphics[width=0.45\linewidth]{RFMPlus.png}
+    \includegraphics[width=0.45\linewidth]{PCA.png}
+
+\end{figure}
+
+On compare ces différentes combinaisons avec les scores de silhouette et de Davies-Bouldin obtenu avec l'algorithme \textbf{K-means}. \\
+
+\end{frame}
+
+%------------------------------------------------
+
+
+
+%------------------------------------------------
+
+\begin{frame}
+
+\subsection{Clustering hiérarchique : agglomeratif  }
+    \frametitle{Segmentation des clients du site de e-commerce}
+	\framesubtitle{Clustering hiérarchique : agglomeratif }
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\linewidth]{Dendogram.png}
+    \includegraphics[width=0.45\linewidth]{AgglomerativeClustering.png}
+\end{figure}
+\end{frame}
+
+
+
+%------------------------------------------------
+
+%------------------------------------------------
+
+\begin{frame}
+\subsection{DBSCAN and conclusion}
+    \frametitle{Segmentation des clients du site de e-commerce}
+	\framesubtitle{DBSCAN and conclusion}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.25\linewidth]{DBSCAN.png}
+
+\end{figure}
+\begin{figure}
+    \centering
+
+     \includegraphics[width=0.8\linewidth]{conclusion.png}
+\end{figure}
+
+\end{frame}
+
+
+
+%------------------------------------------------
+
+
+%------------------------------------------------
+
+\begin{frame}
+
+
+\frametitle{Segmentation des clients du site de e-commerce}
+	\framesubtitle{DBSCAN and conclusion}
+\textbf{Segmentation finale choisie : K-means (RFMPLUS et PCA)}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\linewidth]{RFMPLUSPCA.png}
+    % \includegraphics[width=0.45\linewidth]{3DPCAKMEANS.png}
+    \includegraphics[width=0.4\linewidth]{distributionRFMPLUSPCA.png}
+\end{figure}
+La compréhension des clusters après l'ACP est plus compliqué, j'ai néanmoins essayé de donner une analyse en fonction des variables portées par ces composantes : \\
+- groupe 0 : client satisfait, payant en plusieurs fois  \\
+- groupe 1 : clients habitant proche de la capitale  \\
+- groupe 2 : clients insatisfaits et habitant loin de la capitale  \\
+- groupe 3 : clients habitant loin de la capitale \\
+
+\end{frame}
+
+
+%------------------------------------------------
+
+%------------------------------------------------
+
+\begin{frame}
+
+\section{Établir le délai de maintenance}
+    \subsection{Pipeline de test }
+    \frametitle{Établir le délai de maintenance}
+	\framesubtitle{Pipeline de test}
+
+\textbf{Proposition de maintenance} \\
+\begin{center}
+    
+
+- basée sur l’ARI (indice Rand ajusté) \\ 
+- entre novembre 2017 à août 2018. \\
+- Considère la base pré-nettoyée : plus de valeurs manquantes ou aberrantes\\
+\end{center} \\
+ \\
+\textbf{Initialisation : } \\Cluster initial sur les commandes avant novembre 2017 \\
+
+\textbf{Tant que la date != aout 2018} mettre à jour la base de données en tenant compte des nouvelles commandes passées par les clients. Appliquer le feature enginneering. Nouveau clustering avec K-means et calcul de l'ARI entre le clustering initial et le nouveau clustering.
+Ajouter 15 jours à la date courante. 
+
+\end{frame}
+
+%------------------------------------------------
+%------------------------------------------------
+
+\begin{frame}
+\subsection{Évaluation de l'ARI }
+\frametitle{Établir le délai de maintenance}
+	\framesubtitle{Evaluation de l'ARI}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{ARI.png}
+\end{figure}
+
+\textbf{Conclusion} : la mise à jour de l'ARI doit être effectuée tous les quatre mois. 
+\end{frame}
+
+%------------------------------------------------
+
+
+\end{document}
